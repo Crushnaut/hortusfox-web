@@ -319,6 +319,34 @@ class TasksModel extends \Asatru\Database\Model {
     }
 
     /**
+     * @return void
+     * @throws \Exception
+     */
+    public static function cronjobRecurringCompleteOnly()
+    {
+        try {
+            $tasks = static::raw('SELECT * FROM `@THIS` WHERE done = 1 AND due_date IS NOT NULL AND recurring_time IS NOT NULL');
+            
+            foreach ($tasks as $task) {
+                static::raw('UPDATE `@THIS` SET due_date = DATE_ADD(NOW(), INTERVAL recurring_time HOUR), done = 0 WHERE id = ?', [$task->get('id')]);
+
+                $plant = null;
+
+                if (PlantTasksRefModel::hasPlantReference($task->get('id'))) {
+                    $reference = PlantTasksRefModel::getForTask($task->get('id'));
+                    if ($reference) {
+                        $plant = PlantsModel::getDetails($reference->get('plant_id'));
+                    }
+                }
+
+                TaskInformerModel::inform($task, 'recurring', env('APP_CRONJOB_MAILLIMIT', 5), $plant);
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @param $taskId
      * @return void
      * @throws \Exception
