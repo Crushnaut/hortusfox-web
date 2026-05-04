@@ -162,6 +162,7 @@ return [
     array('/cronjob/tasks/recurring', 'ANY', 'cronjobs@recurring_tasks'),
     array('/cronjob/calendar/reminder', 'ANY', 'cronjobs@calendar_reminder'),
     array('/cronjob/backup/auto', 'ANY', 'cronjobs@auto_backup'),
+    array('/cronjob/tasks/recurringCompleteOnly', 'ANY', 'cronjobs@recurring_complete_tasks'),
 
     /** Share Controller */
     array('/share/photo/post', 'POST', 'share@share_photo'),
